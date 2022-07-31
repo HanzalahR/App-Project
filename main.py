@@ -1,7 +1,12 @@
 import tkinter as tk
+from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk  # pip install pillow
 import tkinter.font as font
+import random
+
+asked = []
+score = 0
   
     
 class Start(tk.Frame):
@@ -100,22 +105,179 @@ class Second(tk.Frame):
 #A lambda function is a small anonymous function(usually we dont need to reuse it)
 #A lambda function can take any number of arguments, but can only have one expression 
 
+
+  
+
+questions_answers = {
+  1: ["Which one is the biggest cause of global warming?",
+      'Pollution from wildfires',
+      'Burning oil and gas',
+      'Natural variation',
+      'Decomposing plants',
+      'Burning oil and gas'
+      ,2],
+  2: ["What is the greenhouse effect?",
+      'impact trees have on global temperature',
+      'gases from the atmosphere stop heat from escaping',
+      'measurement of plant growth',
+      'When climate change affects ecosystems',
+      'gases from the atmosphere stop heat from escaping'
+      ,2],
+  3: ["What is responsible for 75% of the warming effect from greenhouse gases",
+      'Nitrous oxide',
+      'fluorinated gases',
+      'Carbon dioxide',
+      'Methane',
+      'Carbon dioxide'
+      ,3],
+  4: ["Percentage of species at risk of extinction if global temperature rises?",
+      '100%',
+      '30-50%',
+      '10-15%',
+      '15-20%',
+      '15-20%'
+      ,4],
+  5: ["How much have sea levels risen in the past 100 years?",
+      '160-210mm',
+      '100-150mm',
+      '220-250mm',
+      'More than 250mm',
+      '160-210mm'
+      ,1],
+}
+      
+     
+def randomise (): #questions will be randomised
+  global qnum
+  qnum = random.randint(1,5) # 5 questions in total
+  if qnum not in asked:
+    asked.append (qnum)
+  elif qnum in asked:
+    randomise()
+
 class Third(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
+  def __init__(self, parent, controller):
+
+    tk.Frame.__init__(self, parent)
+    self.controller = controller
+    self.configure(bg = "black")
+    background_color = "black"
+    
+    
+    self.quiz_frame = tk.Frame(parent, bg = background_color, padx = 100, pady = 100)
+    self.quiz_frame.grid()
+    
+    self.question_label = tk.Label(self, text=questions_answers[qnum][0], font=("Arial", 15), fg = "lime", bg = "black" )
+    self.question_label.place(x=50, y=20)
+
+    #holds the value of radio buttons
+    self.var1=tk.IntVar()
+
+    # Radio Button 1
+    self.radiob1 = tk.Radiobutton(self, text=questions_answers[qnum][1], font=("Arial","12"), bg = "lime", value = 1, padx=10, pady=10, variable=self.var1)
+    self.radiob1.place(x=50, y=60)
+
+     # Radio Button 2
+    self.radiob2 = tk.Radiobutton(self, text=questions_answers[qnum][2], font=("Arial","12"), bg = "lime", value = 2, padx=10, pady=10, variable=self.var1)
+    self.radiob2.place(x=50, y=120)
+
+     # Radio Button 3
+    self.radiob3 = tk.Radiobutton(self, text=questions_answers[qnum][3], font=("Arial","12"), bg = "lime", value = 3, padx=10, pady=10, variable=self.var1)
+    self.radiob3.place(x=50, y=180)
+
+     # Radio Button 4
+    self.radiob4 = tk.Radiobutton(self, text=questions_answers[qnum][4], font=("Arial","12"), bg = "lime", value = 4, padx=10, pady=10, variable=self.var1)
+    self.radiob4.place(x=50, y=240)
+
+    # Confirm button
+    self.quiz_instance=tk.Button(self,text="Confirm", font=("Arial","13"), bg = "lime", command=self.quiz_advancement)
+    self.quiz_instance.place(x=350, y=300)
+
+    # Home Button
+    self.home_button = tk.Button(self, text="Home", font=("Arial", "13"),bg = "red", command=lambda: controller.show_frame(Start))
+    self.home_button.place(x=600, y=300)
+
+    #score 
+    self.score_label = tk.Label(self, text = "SCORE:", font = ("arial", "12"), fg = "lime", bg = background_color,)
+    self.score_label.place (x=50, y=310)
+
+ # editing question label to new question and possible answers as new radio button choices
+  def question_arrangement(self):
+    randomise()
+    self.var1.set(0)
+    self.question_label.config(text=questions_answers[qnum][0])
+    self.radiob1.config(text=questions_answers[qnum][1])
+    self.radiob2.config(text=questions_answers[qnum][2])
+    self.radiob3.config(text=questions_answers[qnum][3])
+    self.radiob4.config(text=questions_answers[qnum][4])
+    
+  #command for confirm button
+  def quiz_advancement(self):
+    global score
+    scr_label=self.score_label
+    choice=self.var1.get()
+    if len(asked)>4: #determining if its the last question, end quiz after
+      if choice == questions_answers[qnum][6]: #checking if the user has chosen the correct answer (stored in index 6 of the value array)
+        score +=1 #add one point to score
+        scr_label.configure(text=score)
+        self.quiz_instance.config(text="Confirm")
+        #self.endscreen()
+        self.controller.show_frame(End)
+      else:
+        print(choice)
+        score-=0 #score will stay the same
+        scr_label.configure(text="The correct answer was:" + questions_answers[qnum][5])
+        self.quiz_instance.config(text="Confirm")
+        #self.endscreen()
+        self.controller.show_frame(End)
+    else:
+      if choice == 0:
+        self.quiz_instance.config(text="You did not select an option")
+        choice = self.var1.get()
+      else:
+        if choice == questions_answers[qnum][6]:
+          score +=1
+          scr_label.configure(text=score)
+          self.quiz_instance.config(text="Confirm")
+          self.question_arrangement()
+        else:
+          print(choice)
+          score -= 0
+          scr_label.configure(text="the correct answer was:" + questions_answers[qnum][5])
+          self.quiz_instance.config(text="Confirm")
+          self.question_arrangement()
+
+
+class End(tk.Frame):
+  def __init__(self, parent, controller):
+
+    tk.Frame.__init__(self, parent)
+    self.configure(bg = "black")
+    background_color = "black"
+
+    
+
+
+
+    self.end_heading = tk.Label (self, text = "Good effort, thanks for playing my quiz!", font = ("arial", "20"), bg = background_color, fg = "lime")
+    self.end_heading.place(x=50, y=20)
+
+   # self.end_heading2 = tk.Label(self, text = f'your score was {score}', font = ("arial", "20"), bg = background_color, fg = "lime")
+   # self.end_heading2.place(x=50, y=50)
+      
+    
+    
+    
+
+
+
+     
+randomise()
+      
+
+
         
-        self.configure(bg='ivory')
-        
-        self.app_label = tk.Label(self, text="Store some content related to your \n project or what your application made for. \n All the best!!", bg = "ivory", font=("Arial Bold", 25))
-        self.app_label.place(x=40, y=150)
-        
-        self.home_button = tk.Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Start))
-        self.home_button.place(x=650, y=450)
-        
-        self.back_button = tk.Button(self, text="Back", font=("Arial", 15), command=lambda: controller.show_frame(Second))
-        self.back_button.place(x=100, y=450)
-        
-        
+
 class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -127,7 +289,7 @@ class Application(tk.Tk):
         self.window.grid_columnconfigure(0, minsize = 800)
         
         self.frames = {}
-        for F in (Start, Second, Third):
+        for F in (Start, Second, Third, End):
             frame = F(self.window, self)
             self.frames[F] = frame
             frame.grid(row = 0, column=0, sticky="nsew")
@@ -137,10 +299,9 @@ class Application(tk.Tk):
     def show_frame(self, page):
         frame = self.frames[page]
         frame.tkraise()
-        self.title("Climate Change App") 
+        self.title("Climate Change Quiz") 
 
 
-#start of program
 if __name__ == '__main__':           
     app = Application()
     app.maxsize(800,500)
