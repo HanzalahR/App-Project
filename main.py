@@ -26,7 +26,7 @@ class Start(tk.Frame):
         self.password_label.place(x=50, y=80)
         self.password_entry = tk.Entry(self.border, width = 30, show='*', bd = 5)
         self.password_entry.place(x=180, y=80)
-        
+        # This is when verifying the username and password. Checking the correct input
         def verify():
             try:
                 with open("users.txt", "r") as f:
@@ -38,15 +38,15 @@ class Start(tk.Frame):
                             controller.show_frame(Second)
                             i = 1
                             break
-                    if i==0:
+                    if i==0: # this is shown if the username and passoword does not match
                         messagebox.showinfo("Error", "Please provide correct username and password!!")
             except:
-                messagebox.showinfo("Error", "Username and password does not match")
+                messagebox.showinfo("Error", "Username and password does not match") 
      
-         
+         # Submit button for sign in page
         self.submitbutton = tk.Button(self.border, text="Submit", font=("Arial", 15), bg = "lime", command=verify)
         self.submitbutton.place(x=320, y=115)
-        
+        # This is for the register/sign up page to register new users 
         def register():
             register_window = tk.Tk()
             register_window.resizable(0,0)
@@ -66,18 +66,18 @@ class Start(tk.Frame):
             confirm_password_label.place(x=10, y=110)
             confirm_password_entry = tk.Entry(register_window, width=30, show="*", bd=5)
             confirm_password_entry.place(x = 200, y=110)
-            
+            # This is for checking if the user has filled in all the boxes to successfully register or not
             def check():
                 if reg_name_entry.get()!="" or reg_password_entry.get()!="" or confirm_password_entry.get()!="":
                     if reg_password_entry.get()==confirm_password_entry.get():
                         with open("users.txt", "a") as f:
                             f.write(reg_name_entry.get()+","+reg_password_entry.get()+"\n")
-                            messagebox.showinfo("Welcome","You are registered successfully!!")
+                            messagebox.showinfo("Welcome","You are registered successfully!!") # Message shown after successfully being registered
                             register_window.destroy()
                     else:
-                        messagebox.showinfo("Error","Your passwords do not match!")
+                        messagebox.showinfo("Error","Your passwords do not match!") # shown when the passwords do not match when registering
                 else:
-                    messagebox.showinfo("Error", "Please fill in all the boxes!")
+                    messagebox.showinfo("Error", "Please fill in all the boxes!") # shown when there is box/es not filled
                     
             self.register_button = tk.Button(register_window, text="Sign Up", font=("Arial",15), bg="lime", command=check)
             self.register_button.place(x=170, y=150)
@@ -87,7 +87,8 @@ class Start(tk.Frame):
             
         self.register_button = tk.Button(self, text="Sign Up", bg = "dark orange", font=("Arial",15), command=register)
         self.register_button.place(x=650, y=20)
-        
+
+    # The Second class is for the second frame which is when the user is given the choice to go back or contine with the program. This frame is shown when the user has successfully logged in. If the user presses the back button it will send them back to the sign in page
 class Second(tk.Frame):
     def __init__(self, parent, controller):
         background_color = "black"
@@ -105,17 +106,17 @@ class Second(tk.Frame):
 #A lambda function is a small anonymous function(usually we dont need to reuse it)
 #A lambda function can take any number of arguments, but can only have one expression 
 
-
+# Also, using .place instead of .grid
   
 
 questions_answers = {
-  1: ["Which one is the biggest cause of global warming?",
-      'Pollution from wildfires',
-      'Burning oil and gas',
-      'Natural variation',
-      'Decomposing plants',
-      'Burning oil and gas'
-      ,2],
+  1: ["Which one is the biggest cause of global warming?", # item 1, index 0 is the question 
+      'Pollution from wildfires', # first option 
+      'Burning oil and gas', # second option
+      'Natural variation', # third option 
+      'Decomposing plants', # fourth option
+      'Burning oil and gas' # correct answer, index 5
+      ,2], # close the list as it is the end of the first key value
   2: ["What is the greenhouse effect?",
       'impact trees have on global temperature',
       'gases from the atmosphere stop heat from escaping',
@@ -146,15 +147,16 @@ questions_answers = {
       ,1],
 }
       
-     
+     # This is for randomising the questions so they are not in a specific order. 
 def randomise (): #questions will be randomised
   global qnum
   qnum = random.randint(1,5) # 5 questions in total
   if qnum not in asked:
     asked.append (qnum)
-  elif qnum in asked:
+  elif qnum in asked: # If the question has already been asked
     randomise()
-
+    
+ # This class is for all the 5 quiz questions. This frame is shown when the user presses continue in the second frame
 class Third(tk.Frame):
   def __init__(self, parent, controller):
 
@@ -193,9 +195,9 @@ class Third(tk.Frame):
     self.quiz_instance=tk.Button(self,text="Confirm", font=("Arial","13"), bg = "lime", command=self.quiz_advancement)
     self.quiz_instance.place(x=350, y=300)
 
-    # Home Button
+    # Home Button. If the home button is pressed at any stage it will take you back to the sign in page (the beginning) 
     self.home_button = tk.Button(self, text="Home", font=("Arial", "13"),bg = "red", command=lambda: controller.show_frame(Start))
-    self.home_button.place(x=600, y=300)
+    self.home_button.place(x=650, y=300)
 
     #score 
     self.score_label = tk.Label(self, text = "SCORE:", font = ("arial", "12"), fg = "lime", bg = background_color,)
@@ -218,17 +220,15 @@ class Third(tk.Frame):
     choice=self.var1.get()
     if len(asked)>4: #determining if its the last question, end quiz after
       if choice == questions_answers[qnum][6]: #checking if the user has chosen the correct answer (stored in index 6 of the value array)
-        score +=1 #add one point to score
+        score +=1 #adds one point to score
         scr_label.configure(text=score)
         self.quiz_instance.config(text="Confirm")
-        #self.endscreen()
         self.controller.show_frame(End)
       else:
         print(choice)
-        score-=0 #score will stay the same
+        score-=0 #score will stay the same. Will not be subtracted
         scr_label.configure(text="The correct answer was:" + questions_answers[qnum][5])
         self.quiz_instance.config(text="Confirm")
-        #self.endscreen()
         self.controller.show_frame(End)
     else:
       if choice == 0:
@@ -243,11 +243,11 @@ class Third(tk.Frame):
         else:
           print(choice)
           score -= 0
-          scr_label.configure(text="the correct answer was:" + questions_answers[qnum][5])
+          scr_label.configure(text="the correct answer was:" + questions_answers[qnum][5]) # show the correct answer if incorrect answer was chosen
           self.quiz_instance.config(text="Confirm")
           self.question_arrangement()
 
-
+# This class is the last page of the program. This page comes after all the questions of the quiz have been asked 
 class End(tk.Frame):
   def __init__(self, parent, controller):
 
@@ -276,7 +276,7 @@ randomise()
       
 
 
-        
+# The application class controls all the Frames        
 
 class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -289,7 +289,7 @@ class Application(tk.Tk):
         self.window.grid_columnconfigure(0, minsize = 800)
         
         self.frames = {}
-        for F in (Start, Second, Third, End):
+        for F in (Start, Second, Third, End): #Start is the first frame that will start the program
             frame = F(self.window, self)
             self.frames[F] = frame
             frame.grid(row = 0, column=0, sticky="nsew")
@@ -299,7 +299,7 @@ class Application(tk.Tk):
     def show_frame(self, page):
         frame = self.frames[page]
         frame.tkraise()
-        self.title("Climate Change Quiz") 
+        self.title("Climate Change Quiz") # Title
 
 
 if __name__ == '__main__':           
